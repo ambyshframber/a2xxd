@@ -1,11 +1,19 @@
 use std::env::args;
 use std::fs::read;
+use std::io::{Read, stdin};
 
 fn main() {
     let a: Vec<String> = args().collect();
 
     let filename = a.get(1).expect("filename is required!");
-    let rom = read(&filename).expect("error opening file");
+    let rom = if filename == "-" {
+        let mut buf = Vec::new();
+        stdin().read_to_end(&mut buf).expect("error reading from stdin");
+        buf
+    }
+    else {
+        read(&filename).expect("error opening file")
+    };
     let (rom_trim, header) = get_header(&rom);
     let start_offset = header.start_offset();
 
